@@ -1,0 +1,68 @@
+job-service:
+  url: http://localhost:8082
+
+company-service:
+  url: http://localhost:8081
+
+review-service:
+  url: http://localhost:8083
+
+server:
+  port: 8082
+
+spring:
+  application:
+    name: JOB-SERVICE
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/job
+    username: abdelghaffar
+    password: abdelghaffar
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+
+  zipkin:
+    tracing:
+      endpoint: http://localhost:9411
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    register-with-eureka: true
+    fetch-registry: true
+  instance:
+    prefer-ip-address: true
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      companyBreaker:
+        registerHealthIndicator: true
+        slidingWindowSize: 10
+        minimumNumberOfCalls: 5
+        permittedNumberOfCallsInHalfOpenState: 3
+        waitDurationInOpenState: 10s
+        failureRateThreshold: 50
+        automaticTransitionFromOpenToHalfOpenEnabled: true
+        slidingWindowType: COUNT_BASED
+
+management:
+  health:
+    circuitbreakers:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,circuitbreakers
+  endpoint:
+    health:
+      show-details: always
